@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 typedef struct _Osoba* pozicija; //pokazivac na strukturu _Osoba
 
@@ -11,6 +12,82 @@ typedef struct _Osoba
 	int godina;
 	pozicija next;
 } osoba;
+
+pozicija NovaOsoba();
+int UnesiPocetak (pozicija);
+int IspisiListu (pozicija);
+pozicija PronadiZadnji (pozicija);
+int UnesiKraj(pozicija);
+pozicija PronadiOsobu(pozicija);
+pozicija TraziPrethodni(pozicija, char prezime[128]);
+int Brisi(pozicija);
+int UnesiIza(pozicija);
+int UnesiIspred(pozicija);
+int SortirajListu(pozicija);
+int UpisiDatoteku(pozicija);
+int CitajDatoteku(pozicija);
+
+int main (int argc, char** argv)
+{
+	int number = 0;
+	char znak = NULL;
+	osoba head;
+	head.next = NULL;
+	
+
+	printf("Pozdrav! Za zeljenu naredbu morate unijeti odgovarajuci broj. \nU nastavku je uputa koji broj treba za koju naredbu. \n");
+	printf("Unos na pocetak liste - 1		Unos na kraj liste - 2 \nIspisivanje liste - 3		Trazenje odredene osobe u listi - 4\n");
+	printf("Brisanje odredene osobe iz liste - 5		Unos iza odredene osobe - 6\nUnos ispred odredene osobe - 7		Sortiranje liste po prezimenima - 8\n");
+	printf("Upisivanje liste u datoteku - 9		Ucitavanje liste iz datoteke - 10\n");
+
+	while(toupper(znak) != 'P') //korisnik pritiskom na tipku P izlazi iz petlje
+	{
+		printf("\nUnesite zeljeni broj!\n");
+			scanf("%d", &number);
+	
+	switch(number)
+	{
+		case 1:
+			UnesiPocetak(&head);
+			break;
+		case 2:
+			UnesiKraj(&head);
+			break;
+		case 3:
+			IspisiListu(head.next);
+			break;
+		case 4:
+			PronadiOsobu(&head);
+			break;
+		case 5:
+			Brisi(&head);
+			break;
+		case 6:
+			UnesiIza(&head);
+			break;
+		case 7:
+			UnesiIspred(&head);
+			break;
+		case 8:
+			SortirajListu(&head);
+			break;
+		case 9:
+			UpisiDatoteku(head.next);
+			break;
+		case 10:
+			CitajDatoteku(&head);
+			break;
+		default: 
+			printf("GRESKA!! Niste unijeli ispravnu komandu!!\n");
+			break;
+	}
+
+	printf("Ako zelite izaci iz menua pritisnite P, u protivnom pritisnite C!\n");
+		scanf(" %c", &znak);
+	}
+	
+	return 0;
+}
 
 pozicija NovaOsoba()
 {
@@ -207,7 +284,7 @@ int SortirajListu(pozicija Pos)
 	}
 }
 
-int UpisiDatoteku(pozicija Pos)
+int UpisiDatoteku(pozicija Pos) //funkcija vrsi upisivanje elemenata liste u datoteku
 {
 	FILE* datoteka = NULL;
 
@@ -219,9 +296,9 @@ int UpisiDatoteku(pozicija Pos)
 		return -1;
 	}
 
-	while(Pos != NULL)
+	while(Pos != NULL) //da smo stavili Pos->next zadnji element nebi bia upisan u datoteku
 	{
-		fprintf(datoteka, "%s  %s    %d", Pos->ime, Pos->prezime, Pos->godina);
+		fprintf(datoteka, " %s %s    %d\n", Pos->ime, Pos->prezime, Pos->godina);
 		Pos = Pos->next;
 	}
 
@@ -231,12 +308,11 @@ int UpisiDatoteku(pozicija Pos)
 	return 0;
 }
 
-int CitajDatoteku() //funkcija nedovrsena, proucit jos malo sscanf i vidit kako to sve skupa slozit
+int CitajDatoteku(pozicija Pos) //funkcija nam vrsi ucitavanje liste iz datoteke
 {
 	FILE* datoteka = NULL;
 	pozicija novi;
-	int i,br = 0;
-	char* buffer = NULL;
+	char buffer[1024]; //spremnik u kojeg cemo ucitati sadrzaj datoteke
 
 	datoteka = fopen("lista.txt", "r");
 
@@ -245,52 +321,21 @@ int CitajDatoteku() //funkcija nedovrsena, proucit jos malo sscanf i vidit kako 
 		perror("GRESKA!!!Datoteka nije uspjesno otvorena !! \n");
 		return -1;
 	}
-
+		
 	while(!feof(datoteka))
 	{
-		fscanf(datoteka, "%s  %s      %d", buffer); //ucitava redak po redak
-		br++; //brojac zbog toga da znamo koliko se puta izvrsila while petlja, treba nam taj podatak u nastavku
+		
+		fgets(buffer, 1024, datoteka);
+		novi = (pozicija)malloc(sizeof(osoba));
+		sscanf(buffer, "%s  %s     %d\n", novi->ime, novi->prezime, &novi->godina);
+
+		novi->next = Pos->next;
+		Pos->next = novi;
+		Pos = novi;
 	}
-
-	if(buffer == NULL)
-	{
-		perror("GRESKA!!! Podaci nisu uspjesno ucitani u buffer!\n");
-		return -1;
-	}
-
-	rewind(datoteka);
-
-	/*for(i = 0; i < br; i++)
-	{
-
-
-	}*/
-
-
-}
-
-int main (int argc, char** argv)
-{
-	osoba head;
-	head.next = NULL;
 	
-	UnesiPocetak(&head);
-	UnesiPocetak(&head);
-	//UnesiPocetak(&head);
-	//UnesiPocetak(&head);
-	IspisiListu(head.next);
-	UnesiKraj(&head);
-	IspisiListu(head.next);
-	PronadiOsobu(&head);
-	Brisi(&head);
-	IspisiListu(head.next);
-	UnesiIza(&head);
-	IspisiListu(head.next);
-	UnesiIspred(&head);
-	IspisiListu(head.next);
-	SortirajListu(&head);
-	IspisiListu(head.next);
-
 	
+	fclose(datoteka); //obavezno na kraju rada s datotekom zatvoriti istu!!!
+
 	return 0;
 }
