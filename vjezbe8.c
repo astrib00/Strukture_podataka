@@ -14,12 +14,14 @@ position insert(position current, int el);
 void printInOrder(position current);
 void printPostorder(position current);
 void printPreorder(position current);
-void printLevelOrder(position current);  //jos malo proucit pa dovrsit ovu funkciju!!!
+void printLevelOrder(position current);  
 position find(position current, int number);
 position deleteNode(position current, int number);
 position createNode(int number);
 position findMin(position current);
 position findMax(position current);
+int depth(Position node);
+int levelOrder(Position node, int level);
 
 int main()
 {
@@ -100,7 +102,7 @@ position insert(position current, int el)
 	return current;
 }
 
-void printInOrder(position current)
+int printInOrder(position current)
 {
 	if(current == NULL)
 		return;
@@ -108,19 +110,23 @@ void printInOrder(position current)
 	printInOrder(current->left);
 	printf("%d ", current->number);
 	printInOrder(current->right);
+	
+	return 0;
 }
 
-void printPostorder(position current)
+int printPostorder(position current)
 {
 	if(current == NULL)
 		return;
 
 	printPostorder(current->left);
 	printPostorder(current->right);
-	printf("%d ", current->number);
+	printf("%d ", current->number); 
+	
+	return 0;
 }
 
-void printPreorder(position current)
+int printPreorder(position current)
 {
 	if(current == NULL)
 		return;
@@ -128,13 +134,47 @@ void printPreorder(position current)
 	printf("%d ", current->number);
 	printPreorder(current->left);
 	printPreorder(current->right);
+	
+	return 0;
 }
 
-void printLevelOrder(position current)
+int printLevelOrder(position current)
 {
+	 int level = 0;
 
+    for(level = 0; level <= depth(root); level++){
+        levelOrder(root, level);
+    }
 
+    return 0;
+}
 
+int depth(Position node)
+{
+    int ldepth =  0;
+    int rdepth = 0;
+    if(!node)
+        return -1;
+    ldepth = depth(node->Left);
+    rdepth = depth(node->Right);
+    if(ldepth > rdepth)
+        return ldepth + 1;
+    else
+        return rdepth + 1;
+}
+
+int levelOrder(Position node, int level)
+{
+    if(!node)
+        return -1;
+    else if(level == 0)
+        printf("%d ", node->element);
+    else if(level > 0){
+        levelOrder(node->Left, level - 1);
+        levelOrder(node->Right, level - 1);
+    }
+
+    return 0;
 }
 
 position find(position current, int number)
