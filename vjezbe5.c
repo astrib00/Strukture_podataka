@@ -22,11 +22,60 @@ int Pop(double* resultDestination, Position head);
 int PerformOperation(Position head, char operation);
 int CalculatePostfixFromFile(double* resultDestination, char* fileName);
 int DeleteAll(Position head);
+int InputFileName(char* fileName);
+char* ReadFromFile(char *fileName);
 
 int main(int argc, char* argv[]) 
 {
+	char fileName[70] = { 0 };
+	double postfixResult = 0;
 
-	return 0;
+	InputFileName(fileName);
+
+	if (CalculatePostfixFromFile(&postfixResult, fileName) == EXIT_SUCCESS)
+	{
+		printf("The result is: %.2lf \n", postfixResult);
+		return EXIT_SUCCESS;
+	}
+
+	else
+		return 0;
+}
+
+int InputFileName(char* fileName)
+{
+	printf("Enter the file name: \n");
+	scanf(" %s", fileName);
+
+	return EXIT_SUCCESS;
+}
+
+char* ReadFromFile(char *fileName)
+{
+    FILE *fp = NULL;
+    int fileLength;
+    char *buffer = NULL;
+
+    fp = fopen(fileName, "rb");
+
+    if(!fp){
+        perror("Can't opne file!\n");
+        return NULL;
+    }
+    fseek(fp, 0, SEEK_END);
+    fileLength = ftell(fp);
+    buffer = (char*)calloc(fileLength+1, sizeof(char));
+
+    if(!buffer){
+        perror("Can't allocate memory!\n");
+        return NULL;
+    }
+    rewind(fp);
+
+    fread(buffer, sizeof(char), fileLength, fp);
+    printf("buffer: %s\n", buffer);
+    fclose(fp);
+    return buffer;
 }
 
 Position CreateElement(double number)
